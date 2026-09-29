@@ -1,0 +1,3011 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M!LK Call Editor</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 20px 12px 60px;
+  background: #f7f7f7;
+  color: #222;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Hiragino Kaku Gothic ProN",
+    "Yu Gothic",
+    Meiryo,
+    sans-serif;
+}
+
+.container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+h1 {
+  margin: 0 0 18px;
+  font-size: 26px;
+  text-align: center;
+}
+
+h2 {
+  margin: 0 0 12px;
+  font-size: 20px;
+}
+
+h3 {
+  margin: 0 0 10px;
+  font-size: 17px;
+}
+
+.card {
+  background: white;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 7px;
+}
+
+select,
+input,
+textarea,
+button {
+  font: inherit;
+}
+
+select,
+input[type="text"],
+input[type="number"],
+textarea {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 9px;
+  padding: 10px;
+  background: white;
+}
+
+select {
+  cursor: pointer;
+}
+
+textarea {
+  min-height: 170px;
+  resize: vertical;
+  line-height: 1.7;
+}
+
+button {
+  border: none;
+  border-radius: 9px;
+  padding: 10px 14px;
+  cursor: pointer;
+  background: #222;
+  color: white;
+  font-weight: bold;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+button.secondary {
+  background: #777;
+}
+
+button.green {
+  background: #218838;
+}
+
+button.blue {
+  background: #1769aa;
+}
+
+button.red {
+  background: #c62828;
+}
+
+button.orange {
+  background: #d97706;
+}
+
+button.large {
+  width: 100%;
+  padding: 15px;
+  font-size: 17px;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.button-row button {
+  flex: 1;
+  min-width: 130px;
+}
+
+#player {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #111;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+#player iframe {
+  width: 100%;
+  height: 100%;
+}
+
+.time-display {
+  margin: 12px 0;
+  text-align: center;
+  font-size: 28px;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+}
+
+.status {
+  text-align: center;
+  min-height: 24px;
+  margin-top: 6px;
+  color: #555;
+  font-size: 14px;
+}
+
+
+/* =========================
+   再生プレビュー
+========================= */
+
+.preview-box {
+  margin-top: 14px;
+  width: 100%;
+  min-height: 190px;
+  border-radius: 14px;
+  background: #111;
+  color: white;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  padding: 35px 16px 24px;
+  text-align: center;
+
+  position: relative;
+  overflow: hidden;
+}
+
+.preview-label {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  font-size: 11px;
+  color: #777;
+}
+
+.preview-lyric {
+  min-height: 48px;
+  font-size: 23px;
+  font-weight: bold;
+  line-height: 1.5;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+}
+
+.preview-call {
+  min-height: 42px;
+  margin-top: 12px;
+
+  font-size: 25px;
+  font-weight: bold;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+}
+
+.preview-empty {
+  color: #888;
+  font-size: 14px;
+}
+
+
+/* =========================
+   記録ボックス
+========================= */
+
+.record-box {
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 12px;
+}
+
+.record-box.lyric {
+  border-color: #7aa7ff;
+}
+
+.record-box.call {
+  border-color: #e5a0a0;
+}
+
+.current-time-small {
+  font-size: 18px;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+}
+
+.next-lyric {
+  margin-top: 10px;
+  padding: 14px;
+  background: #f0f5ff;
+  border-radius: 9px;
+  font-weight: bold;
+  line-height: 1.5;
+  min-height: 48px;
+}
+
+
+/* =========================
+   一覧
+========================= */
+
+.entry-list {
+  margin-top: 12px;
+}
+
+.entry {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 8px;
+  background: #fafafa;
+}
+
+.entry-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.entry-time {
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+  color: #444;
+}
+
+.entry-text {
+  margin-top: 7px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.5;
+}
+
+.entry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.entry-actions button {
+  padding: 6px 9px;
+  font-size: 13px;
+}
+
+.unrecorded {
+  color: #d97706;
+}
+
+.empty {
+  color: #888;
+  text-align: center;
+  padding: 18px 5px;
+}
+
+
+/* =========================
+   その他
+========================= */
+
+.small {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.6;
+}
+
+.warning {
+  background: #fff8df;
+  border: 1px solid #ead48b;
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.import-area {
+  display: none;
+  margin-top: 12px;
+}
+
+.import-area.show {
+  display: block;
+}
+
+.code-output {
+  display: none;
+  margin-top: 12px;
+}
+
+.code-output.show {
+  display: block;
+}
+
+.code-output textarea {
+  min-height: 260px;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+@media (max-width: 700px) {
+  body {
+    padding: 14px 8px 50px;
+  }
+
+  h1 {
+    font-size: 23px;
+  }
+
+  .preview-lyric {
+    font-size: 20px;
+  }
+
+  .preview-call {
+    font-size: 22px;
+  }
+}
+</style>
+</head>
+
+
+<body>
+
+<div class="container">
+
+  <h1>🎵 M!LK Call Editor</h1>
+
+
+  <!-- =========================
+       曲選択
+  ========================== -->
+
+  <div class="card">
+
+    <label for="songSelect">
+      曲を選択
+    </label>
+
+    <select id="songSelect"></select>
+
+    <div class="small" style="margin-top:8px;">
+      曲ごとに編集データを保存できます。
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       プレイヤー
+  ========================== -->
+
+  <div class="card">
+
+    <h2>▶️ プレイヤー</h2>
+
+    <div id="player"></div>
+
+    <div
+      class="time-display"
+      id="currentTime">
+      00:00.00
+    </div>
+
+
+    <!-- 再生プレビュー -->
+
+    <div class="preview-box">
+
+      <div class="preview-label">
+        再生プレビュー
+      </div>
+
+      <div
+        id="previewLyric"
+        class="preview-lyric">
+
+        <span class="preview-empty">
+          曲を再生すると歌詞が表示されます
+        </span>
+
+      </div>
+
+      <div
+        id="previewCall"
+        class="preview-call">
+      </div>
+
+    </div>
+
+
+    <div
+      class="button-row"
+      style="margin-top:12px;">
+
+      <button
+        class="blue"
+        onclick="seekMinus()">
+        ⏪ 0.5秒戻る
+      </button>
+
+      <button
+        class="blue"
+        onclick="seekPlus()">
+        0.5秒進む ⏩
+      </button>
+
+      <button
+        class="secondary"
+        onclick="refreshTime()">
+        時刻更新
+      </button>
+
+    </div>
+
+    <div
+      class="status"
+      id="playerStatus">
+      YouTubeプレイヤーを読み込んでいます……
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       歌詞編集
+  ========================== -->
+
+  <div class="card">
+
+    <h2>📝 歌詞編集</h2>
+
+    <p class="small">
+      歌詞を「1行＝1フレーズ」で貼り付けてください。<br>
+      「歌詞を編集欄に反映」を押したあと、曲を再生し、
+      歌詞が切り替わる瞬間に記録ボタンを押します。
+    </p>
+
+
+    <textarea
+      id="lyricsInput"
+      placeholder="歌詞を1行ずつ貼り付け
+
+例：
+○○○○○
+△△△△△
+□□□">
+    </textarea>
+
+
+    <div
+      class="button-row"
+      style="margin-top:10px;">
+
+      <button
+        class="secondary"
+        onclick="loadLyricsText()">
+        歌詞を編集欄に反映
+      </button>
+
+      <button
+        class="orange"
+        onclick="clearLyrics()">
+        歌詞データをクリア
+      </button>
+
+    </div>
+
+
+    <!-- 順番に歌詞を記録 -->
+
+    <div class="record-box lyric">
+
+      <h3>
+        🎤 歌詞を順番に記録
+      </h3>
+
+      <div
+        class="current-time-small"
+        id="lyricRecordTime">
+        00:00.00
+      </div>
+
+
+      <div
+        id="nextLyricText"
+        class="next-lyric">
+
+        まず歌詞を編集欄に反映してください
+
+      </div>
+
+
+      <button
+        class="large blue"
+        style="margin-top:8px;"
+        onclick="recordNextLyric()">
+
+        🎤 この歌詞をここに記録
+
+      </button>
+
+
+      <button
+        class="secondary"
+        style="width:100%; margin-top:8px;"
+        onclick="resetLyricRecording()">
+
+        🔄 歌詞の記録位置を最初に戻す
+
+      </button>
+
+    </div>
+
+
+    <div
+      class="entry-list"
+      id="lyricsList">
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       コール編集
+  ========================== -->
+
+  <div class="card">
+
+    <h2>📣 コール編集</h2>
+
+    <p class="small">
+      曲を再生しながら、コールが始まる瞬間に記録してください。
+    </p>
+
+
+    <div class="record-box call">
+
+      <h3>
+        📣 コールを現在時刻に記録
+      </h3>
+
+
+      <div
+        class="current-time-small"
+        id="callRecordTime">
+        00:00.00
+      </div>
+
+
+      <input
+        type="text"
+        id="callText"
+        placeholder="コールの文字"
+        style="margin-top:8px;"
+      >
+
+
+      <label style="margin-top:10px;">
+        表示時間（秒）
+      </label>
+
+
+      <input
+        type="number"
+        id="callDuration"
+        value="1.5"
+        min="0.1"
+        step="0.1"
+      >
+
+
+      <button
+        class="large"
+        style="margin-top:8px;"
+        onclick="recordCall()">
+
+        📣 このコールを記録
+
+      </button>
+
+    </div>
+
+
+    <div
+      class="entry-list"
+      id="callsList">
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       データ
+  ========================== -->
+
+  <div class="card">
+
+    <h2>💾 データ</h2>
+
+    <p class="small">
+      データは曲ごとに保存されます。<br>
+      完成した曲はJSONやコードとしてバックアップできます。
+    </p>
+
+
+    <div class="button-row">
+
+      <button
+        class="green"
+        onclick="downloadJSON()">
+        📥 JSONを書き出す
+      </button>
+
+
+      <button
+        class="blue"
+        onclick="showCodeExport()">
+        📋 コードを書き出す
+      </button>
+
+
+      <button
+        class="secondary"
+        onclick="toggleImport()">
+        📤 JSONを読み込む
+      </button>
+
+    </div>
+
+
+    <!-- JSON読み込み -->
+
+    <div
+      id="importArea"
+      class="import-area">
+
+      <h3 style="margin-top:15px;">
+        JSON読み込み
+      </h3>
+
+      <input
+        type="file"
+        id="jsonFile"
+        accept=".json,application/json"
+      >
+
+      <button
+        class="large green"
+        style="margin-top:8px;"
+        onclick="importJSON()">
+
+        JSONを読み込んで現在の曲に反映
+
+      </button>
+
+    </div>
+
+
+    <!-- コード出力 -->
+
+    <div
+      id="codeOutput"
+      class="code-output">
+
+      <h3 style="margin-top:15px;">
+        コード書き出し（コピペ用）
+      </h3>
+
+      <p class="small">
+        これをコピーしてChatGPTに送れば、
+        最終的なお母さん用HTMLに組み込めます。
+      </p>
+
+      <textarea
+        id="codeTextarea"
+        readonly>
+      </textarea>
+
+
+      <div
+        class="button-row"
+        style="margin-top:8px;">
+
+        <button
+          class="blue"
+          onclick="copyCode()">
+
+          📋 コードをコピー
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       注意
+  ========================== -->
+
+  <div class="card">
+
+    <h2>⚠️ 編集データについて</h2>
+
+    <div class="warning">
+
+      編集データはブラウザにも自動保存されます。
+
+      <br><br>
+
+      ブラウザのデータを消した場合などに備えて、
+      完成した曲は
+      「JSONを書き出す」または
+      「コードを書き出す」
+      でバックアップしてください。
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   曲データ
+========================================================= */
+
+const songs = [
+
+  {
+    song: "コーヒーが飲めません",
+    videoId: "S0Mnp6D8fsw"
+  },
+
+  {
+    song: "反抗期アバンチュール",
+    videoId: "54F33VezY64"
+  },
+
+  {
+    song: "新学期アラカルト",
+    videoId: "ZaUknVdp9b0"
+  },
+
+  {
+    song: "夏味ランデブー",
+    videoId: "baM2h4gA25I"
+  },
+
+  {
+    song: "疾走ペンデュラム",
+    videoId: "FszLsJaFUt8"
+  },
+
+  {
+    song: "Milky Snow",
+    videoId: "GquPDyruk28"
+  },
+
+  {
+    song: "テルネロファイター",
+    videoId: "_HbcPp888mM"
+  },
+
+  {
+    song: "サンキュー！N・D・K！",
+    videoId: "XPMbFgs88hY"
+  },
+
+  {
+    song: "めちゃモル",
+    videoId: "WEPZ---ZMnI"
+  },
+
+  {
+    song: "Brave Saga",
+    videoId: "6e5aLbCwtB0"
+  },
+
+  {
+    song: "My Treasure",
+    videoId: "DgX9cX3FCjw"
+  },
+
+  {
+    song: "SAY YEAH",
+    videoId: "k9a1Ou7sl-c"
+  },
+
+  {
+    song: "DEAR LIFE",
+    videoId: "eSS-248rywA"
+  },
+
+  {
+    song: "シアワシェイク",
+    videoId: "9SLYEDt_HfI"
+  },
+
+  {
+    song: "フレ！フレ！オレ！",
+    videoId: "3zsD0tQMS78"
+  },
+
+  {
+    song: "エビバディグッジョブ！",
+    videoId: "A3H3Ldc25Ts"
+  },
+
+  {
+    song: "ブンブンブン",
+    videoId: "69H3LETHcoc"
+  },
+
+  {
+    song: "LUCKY CALL",
+    videoId: "dVMDWxIAAy8"
+  },
+
+  {
+    song: "好きすぎて滅！",
+    videoId: "14cxcH1eiPc"
+  },
+
+  {
+    song: "爆裂愛してる",
+    videoId: "20bYUQZOAeQ"
+  },
+
+  {
+    song: "アイドルパワー",
+    videoId: "d1d9cz3LcJ4"
+  },
+
+  {
+    song: "You!Joy!Parade!",
+    videoId: "lx3KDeBoLMM"
+  },
+
+  {
+    song: "時空超えてユニバース",
+    videoId: "bQBiZ5N-juo"
+  }
+
+];
+
+
+/* =========================================================
+   状態
+========================================================= */
+
+let currentSongIndex = 0;
+
+let player = null;
+
+let playerReady = false;
+
+let timer = null;
+
+let nextLyricIndex = 0;
+
+let data = {
+  song: "",
+  videoId: "",
+  lyrics: [],
+  calls: []
+};
+
+
+/* =========================================================
+   曲選択
+========================================================= */
+
+const songSelect =
+  document.getElementById("songSelect");
+
+
+songs.forEach(
+  (song, index) => {
+
+    const option =
+      document.createElement("option");
+
+    option.value = index;
+
+    option.textContent = song.song;
+
+    songSelect.appendChild(option);
+
+  }
+);
+
+
+songSelect.addEventListener(
+  "change",
+  function() {
+
+    currentSongIndex =
+      Number(this.value);
+
+    loadSong(currentSongIndex);
+
+  }
+);
+
+
+/* =========================================================
+   空データ
+========================================================= */
+
+function createEmptyData(index) {
+
+  return {
+
+    song:
+      songs[index].song,
+
+    videoId:
+      songs[index].videoId,
+
+    lyrics: [],
+
+    calls: []
+
+  };
+
+}
+
+
+/* =========================================================
+   LocalStorage
+========================================================= */
+
+function storageKey(index) {
+
+  return (
+    "milk_call_editor_" +
+    songs[index].videoId
+  );
+
+}
+
+
+function loadSavedData(index) {
+
+  try {
+
+    const saved =
+      localStorage.getItem(
+        storageKey(index)
+      );
+
+
+    if (!saved) {
+
+      return createEmptyData(index);
+
+    }
+
+
+    const parsed =
+      JSON.parse(saved);
+
+
+    if (
+      parsed.videoId !== songs[index].videoId ||
+      parsed.song !== songs[index].song
+    ) {
+
+      return createEmptyData(index);
+
+    }
+
+
+    return {
+
+      song: parsed.song,
+
+      videoId: parsed.videoId,
+
+      lyrics:
+        Array.isArray(parsed.lyrics)
+          ? parsed.lyrics
+          : [],
+
+      calls:
+        Array.isArray(parsed.calls)
+          ? parsed.calls
+          : []
+
+    };
+
+  }
+
+  catch (error) {
+
+    console.error(error);
+
+    return createEmptyData(index);
+
+  }
+
+}
+
+
+function saveCurrentData() {
+
+  localStorage.setItem(
+    storageKey(currentSongIndex),
+    JSON.stringify(data)
+  );
+
+}
+
+
+/* =========================================================
+   曲読み込み
+========================================================= */
+
+function loadSong(index) {
+
+  nextLyricIndex = 0;
+
+  data =
+    loadSavedData(index);
+
+
+  data.lyrics.sort(
+    (a, b) => {
+
+      const timeA =
+        a.time === null ||
+        a.time === undefined
+          ? Infinity
+          : Number(a.time);
+
+      const timeB =
+        b.time === null ||
+        b.time === undefined
+          ? Infinity
+          : Number(b.time);
+
+      return timeA - timeB;
+
+    }
+  );
+
+
+  data.calls.sort(
+    (a, b) =>
+      Number(a.time) - Number(b.time)
+  );
+
+
+  /*
+    まだ未記録の歌詞があれば、
+    最初の未記録行から再開
+  */
+
+  const firstUnrecorded =
+    data.lyrics.findIndex(
+      lyric =>
+        lyric.time === null ||
+        lyric.time === undefined
+    );
+
+
+  if (firstUnrecorded >= 0) {
+
+    nextLyricIndex =
+      firstUnrecorded;
+
+  }
+
+  else if (data.lyrics.length > 0) {
+
+    nextLyricIndex =
+      data.lyrics.length;
+
+  }
+
+
+  document
+    .getElementById("lyricsInput")
+    .value =
+      data.lyrics
+        .map(item => item.text)
+        .join("\n");
+
+
+  renderLyrics();
+
+  renderCalls();
+
+  updateNextLyricDisplay();
+
+  updateTimeDisplays();
+
+  updatePreview(0);
+
+
+  if (
+    player &&
+    playerReady
+  ) {
+
+    try {
+
+      player.loadVideoById(
+        songs[index].videoId
+      );
+
+    }
+
+    catch (error) {
+
+      console.error(error);
+
+    }
+
+  }
+
+
+  document
+    .getElementById("codeOutput")
+    .classList
+    .remove("show");
+
+}
+
+
+/* =========================================================
+   YouTube
+========================================================= */
+
+function onYouTubeIframeAPIReady() {
+
+  createPlayer();
+
+}
+
+
+function createPlayer() {
+
+  player =
+    new YT.Player(
+      "player",
+      {
+
+        videoId:
+          songs[currentSongIndex].videoId,
+
+        playerVars: {
+
+          playsinline: 1,
+
+          rel: 0
+
+        },
+
+        events: {
+
+          onReady:
+            function() {
+
+              playerReady = true;
+
+              document
+                .getElementById("playerStatus")
+                .textContent =
+                  "プレイヤー準備完了！";
+
+              startTimer();
+
+            },
+
+
+          onStateChange:
+            function(event) {
+
+              if (
+                event.data ===
+                YT.PlayerState.PLAYING
+              ) {
+
+                startTimer();
+
+              }
+
+              else {
+
+                stopTimer();
+
+              }
+
+            },
+
+
+          onError:
+            function(event) {
+
+              document
+                .getElementById("playerStatus")
+                .textContent =
+                  "YouTube動画を読み込めませんでした。";
+
+              console.error(
+                "YouTube error:",
+                event.data
+              );
+
+            }
+
+        }
+
+      }
+    );
+
+}
+
+
+/* =========================================================
+   時刻
+========================================================= */
+
+function getCurrentTime() {
+
+  if (
+    !player ||
+    !playerReady ||
+    typeof player.getCurrentTime !==
+      "function"
+  ) {
+
+    return 0;
+
+  }
+
+
+  try {
+
+    return (
+      Number(
+        player.getCurrentTime()
+      ) || 0
+    );
+
+  }
+
+  catch (error) {
+
+    return 0;
+
+  }
+
+}
+
+
+function formatTime(seconds) {
+
+  if (
+    seconds === null ||
+    seconds === undefined ||
+    !Number.isFinite(
+      Number(seconds)
+    )
+  ) {
+
+    return "未記録";
+
+  }
+
+
+  seconds =
+    Math.max(
+      0,
+      Number(seconds)
+    );
+
+
+  const minutes =
+    Math.floor(
+      seconds / 60
+    );
+
+
+  const secs =
+    seconds % 60;
+
+
+  return (
+
+    String(minutes)
+      .padStart(2, "0")
+
+    +
+
+    ":" +
+
+    secs
+      .toFixed(2)
+      .padStart(5, "0")
+
+  );
+
+}
+
+
+/* =========================================================
+   時刻表示更新
+========================================================= */
+
+function updateTimeDisplays() {
+
+  const time =
+    getCurrentTime();
+
+
+  document
+    .getElementById("currentTime")
+    .textContent =
+      formatTime(time);
+
+
+  document
+    .getElementById("lyricRecordTime")
+    .textContent =
+      formatTime(time);
+
+
+  document
+    .getElementById("callRecordTime")
+    .textContent =
+      formatTime(time);
+
+
+  updatePreview(time);
+
+}
+
+
+function refreshTime() {
+
+  updateTimeDisplays();
+
+}
+
+
+function startTimer() {
+
+  stopTimer();
+
+
+  timer =
+    setInterval(
+      updateTimeDisplays,
+      50
+    );
+
+}
+
+
+function stopTimer() {
+
+  if (timer) {
+
+    clearInterval(timer);
+
+    timer = null;
+
+  }
+
+}
+
+
+/* =========================================================
+   再生位置移動
+========================================================= */
+
+function seekMinus() {
+
+  if (!playerReady) return;
+
+
+  player.seekTo(
+    Math.max(
+      0,
+      getCurrentTime() - 0.5
+    ),
+    true
+  );
+
+}
+
+
+function seekPlus() {
+
+  if (!playerReady) return;
+
+
+  player.seekTo(
+    getCurrentTime() + 0.5,
+    true
+  );
+
+}
+
+
+function seekTo(time) {
+
+  if (!playerReady) return;
+
+
+  player.seekTo(
+    Number(time),
+    true
+  );
+
+}
+
+
+/* =========================================================
+   再生プレビュー
+========================================================= */
+
+function updatePreview(time) {
+
+  const lyricElement =
+    document.getElementById(
+      "previewLyric"
+    );
+
+
+  const callElement =
+    document.getElementById(
+      "previewCall"
+    );
+
+
+  /*
+    現在の歌詞
+  */
+
+  const recordedLyrics =
+    data.lyrics
+      .filter(
+        lyric =>
+          lyric.time !== null &&
+          lyric.time !== undefined &&
+          Number.isFinite(
+            Number(lyric.time)
+          )
+      )
+      .slice()
+      .sort(
+        (a,b) =>
+          Number(a.time) -
+          Number(b.time)
+      );
+
+
+  let currentLyric = null;
+
+
+  for (
+    let i = 0;
+    i < recordedLyrics.length;
+    i++
+  ) {
+
+    if (
+      Number(
+        recordedLyrics[i].time
+      ) <= time
+    ) {
+
+      currentLyric =
+        recordedLyrics[i];
+
+    }
+
+    else {
+
+      break;
+
+    }
+
+  }
+
+
+  if (currentLyric) {
+
+    lyricElement.textContent =
+      currentLyric.text;
+
+    lyricElement.classList
+      .remove("preview-empty");
+
+  }
+
+  else {
+
+    lyricElement.innerHTML =
+      '<span class="preview-empty">' +
+      '歌詞待機中' +
+      '</span>';
+
+  }
+
+
+  /*
+    現在のコール
+  */
+
+  const calls =
+    data.calls
+      .slice()
+      .sort(
+        (a,b) =>
+          Number(a.time) -
+          Number(b.time)
+      );
+
+
+  let currentCall = null;
+
+
+  for (
+    let i = 0;
+    i < calls.length;
+    i++
+  ) {
+
+    const call =
+      calls[i];
+
+
+    const start =
+      Number(call.time);
+
+
+    const duration =
+      Number(call.duration);
+
+
+    const end =
+      start + duration;
+
+
+    if (
+      time >= start &&
+      time < end
+    ) {
+
+      currentCall =
+        call;
+
+      break;
+
+    }
+
+  }
+
+
+  if (currentCall) {
+
+    callElement.textContent =
+      currentCall.text;
+
+  }
+
+  else {
+
+    callElement.textContent = "";
+
+  }
+
+}
+
+
+/* =========================================================
+   歌詞を貼り付け
+========================================================= */
+
+function loadLyricsText() {
+
+  const text =
+    document
+      .getElementById("lyricsInput")
+      .value;
+
+
+  const lines =
+    text
+      .split("\n")
+      .map(
+        line =>
+          line.trim()
+      )
+      .filter(
+        line =>
+          line !== ""
+      );
+
+
+  if (lines.length === 0) {
+
+    alert(
+      "歌詞が入力されていません。"
+    );
+
+    return;
+
+  }
+
+
+  /*
+    歌詞を新しく読み込んだら
+    タイムスタンプをリセット
+  */
+
+  data.lyrics =
+    lines.map(
+      line => ({
+
+        time: null,
+
+        text: line
+
+      })
+    );
+
+
+  nextLyricIndex = 0;
+
+
+  saveCurrentData();
+
+  renderLyrics();
+
+  updateNextLyricDisplay();
+
+  updatePreview(
+    getCurrentTime()
+  );
+
+
+  alert(
+    lines.length +
+    "行の歌詞を読み込みました！\n\n" +
+    "曲を再生して、歌詞が始まった瞬間に\n" +
+    「この歌詞をここに記録」\n" +
+    "を押してください。"
+  );
+
+}
+
+
+/* =========================================================
+   歌詞の順番記録
+========================================================= */
+
+function recordNextLyric() {
+
+  if (
+    !data.lyrics ||
+    data.lyrics.length === 0
+  ) {
+
+    alert(
+      "先に歌詞を入力して、\n" +
+      "「歌詞を編集欄に反映」を押してください。"
+    );
+
+    return;
+
+  }
+
+
+  if (
+    nextLyricIndex >=
+    data.lyrics.length
+  ) {
+
+    alert(
+      "すべての歌詞を記録しました！🎉"
+    );
+
+    return;
+
+  }
+
+
+  const time =
+    getCurrentTime();
+
+
+  data.lyrics[nextLyricIndex].time =
+    Number(
+      time.toFixed(2)
+    );
+
+
+  nextLyricIndex++;
+
+
+  saveCurrentData();
+
+  renderLyrics();
+
+  updateNextLyricDisplay();
+
+  updatePreview(time);
+
+}
+
+
+/* =========================================================
+   次の歌詞表示
+========================================================= */
+
+function updateNextLyricDisplay() {
+
+  const element =
+    document.getElementById(
+      "nextLyricText"
+    );
+
+
+  if (!element) {
+    return;
+  }
+
+
+  if (
+    !data.lyrics ||
+    data.lyrics.length === 0
+  ) {
+
+    element.textContent =
+      "まず歌詞を編集欄に反映してください";
+
+    return;
+
+  }
+
+
+  if (
+    nextLyricIndex >=
+    data.lyrics.length
+  ) {
+
+    element.textContent =
+      "🎉 すべての歌詞を記録しました！";
+
+    return;
+
+  }
+
+
+  element.textContent =
+    data.lyrics[
+      nextLyricIndex
+    ].text;
+
+}
+
+
+/* =========================================================
+   歌詞記録を最初から
+========================================================= */
+
+function resetLyricRecording() {
+
+  if (
+    !data.lyrics ||
+    data.lyrics.length === 0
+  ) {
+
+    return;
+
+  }
+
+
+  const ok =
+    confirm(
+      "歌詞のタイムスタンプをすべてリセットして、最初から記録し直しますか？"
+    );
+
+
+  if (!ok) {
+    return;
+  }
+
+
+  data.lyrics.forEach(
+    lyric => {
+
+      lyric.time = null;
+
+    }
+  );
+
+
+  nextLyricIndex = 0;
+
+
+  saveCurrentData();
+
+  renderLyrics();
+
+  updateNextLyricDisplay();
+
+  updatePreview(
+    getCurrentTime()
+  );
+
+}
+
+
+/* =========================================================
+   歌詞クリア
+========================================================= */
+
+function clearLyrics() {
+
+  if (
+    !confirm(
+      "現在の歌詞データをすべて削除しますか？"
+    )
+  ) {
+
+    return;
+
+  }
+
+
+  data.lyrics = [];
+
+  nextLyricIndex = 0;
+
+
+  document
+    .getElementById("lyricsInput")
+    .value = "";
+
+
+  saveCurrentData();
+
+  renderLyrics();
+
+  updateNextLyricDisplay();
+
+  updatePreview(
+    getCurrentTime()
+  );
+
+}
+
+
+/* =========================================================
+   歌詞一覧
+========================================================= */
+
+function renderLyrics() {
+
+  const list =
+    document.getElementById(
+      "lyricsList"
+    );
+
+
+  list.innerHTML = "";
+
+
+  if (
+    data.lyrics.length === 0
+  ) {
+
+    list.innerHTML =
+      '<div class="empty">' +
+      'まだ歌詞データがありません。' +
+      '</div>';
+
+    return;
+
+  }
+
+
+  data.lyrics.forEach(
+    (item, index) => {
+
+      const div =
+        document.createElement(
+          "div"
+        );
+
+
+      div.className =
+        "entry";
+
+
+      const timeText =
+        item.time === null ||
+        item.time === undefined
+
+          ? '<span class="unrecorded">未記録</span>'
+
+          : formatTime(item.time);
+
+
+      div.innerHTML = `
+
+        <div class="entry-top">
+
+          <span class="entry-time">
+
+            ${timeText}
+
+          </span>
+
+          <span>
+            ${index + 1} / ${data.lyrics.length}
+          </span>
+
+        </div>
+
+
+        <div class="entry-text"></div>
+
+
+        <div class="entry-actions">
+
+          <button
+            class="blue"
+            onclick="editLyric(${index})">
+
+            編集
+
+          </button>
+
+
+          ${
+            item.time !== null &&
+            item.time !== undefined
+
+              ? `
+
+                <button
+                  class="secondary"
+                  onclick="seekTo(${Number(item.time)})">
+
+                  ここへ移動
+
+                </button>
+
+              `
+
+              : ""
+
+          }
+
+
+          <button
+            class="red"
+            onclick="deleteLyric(${index})">
+
+            削除
+
+          </button>
+
+        </div>
+
+      `;
+
+
+      div
+        .querySelector(
+          ".entry-text"
+        )
+        .textContent =
+          item.text;
+
+
+      list.appendChild(div);
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   歌詞編集
+========================================================= */
+
+function editLyric(index) {
+
+  const item =
+    data.lyrics[index];
+
+
+  const newText =
+    prompt(
+      "歌詞を編集してください",
+      item.text
+    );
+
+
+  if (
+    newText === null
+  ) {
+
+    return;
+
+  }
+
+
+  const defaultTime =
+    item.time === null ||
+    item.time === undefined
+
+      ? ""
+
+      : item.time;
+
+
+  const newTime =
+    prompt(
+      "開始時刻（秒）\n空欄にすると未記録になります。",
+      defaultTime
+    );
+
+
+  if (
+    newTime === null
+  ) {
+
+    return;
+
+  }
+
+
+  let time = null;
+
+
+  if (
+    newTime.trim() !== ""
+  ) {
+
+    time =
+      Number(newTime);
+
+
+    if (
+      !Number.isFinite(time) ||
+      time < 0
+    ) {
+
+      alert(
+        "時刻が正しくありません。"
+      );
+
+      return;
+
+    }
+
+
+    time =
+      Number(
+        time.toFixed(2)
+      );
+
+  }
+
+
+  data.lyrics[index] = {
+
+    time: time,
+
+    text:
+      newText
+
+  };
+
+
+  /*
+    最初の未記録歌詞を
+    次の記録位置にする
+  */
+
+  const firstUnrecorded =
+    data.lyrics.findIndex(
+      lyric =>
+        lyric.time === null ||
+        lyric.time === undefined
+    );
+
+
+  if (firstUnrecorded >= 0) {
+
+    nextLyricIndex =
+      firstUnrecorded;
+
+  }
+
+  else {
+
+    nextLyricIndex =
+      data.lyrics.length;
+
+  }
+
+
+  saveCurrentData();
+
+  renderLyrics();
+
+  updateNextLyricDisplay();
+
+  updatePreview(
+    getCurrentTime()
+  );
+
+}
+
+
+function deleteLyric(index) {
+
+  if (
+    !confirm(
+      "この歌詞を削除しますか？"
+    )
+  ) {
+
+    return;
+
+  }
+
+
+  data.lyrics.splice(
+    index,
+    1
+  );
+
+
+  /*
+    削除後、最初の未記録行を探す
+  */
+
+  const firstUnrecorded =
+    data.lyrics.findIndex(
+      lyric =>
+        lyric.time === null ||
+        lyric.time === undefined
+    );
+
+
+  nextLyricIndex =
+    firstUnrecorded >= 0
+      ? firstUnrecorded
+      : data.lyrics.length;
+
+
+  saveCurrentData();
+
+  renderLyrics();
+
+  updateNextLyricDisplay();
+
+  updatePreview(
+    getCurrentTime()
+  );
+
+}
+
+
+/* =========================================================
+   コール
+========================================================= */
+
+function recordCall() {
+
+  const textInput =
+    document.getElementById(
+      "callText"
+    );
+
+
+  const durationInput =
+    document.getElementById(
+      "callDuration"
+    );
+
+
+  const text =
+    textInput.value.trim();
+
+
+  const duration =
+    Number(
+      durationInput.value
+    );
+
+
+  if (!text) {
+
+    alert(
+      "コールを入力してください。"
+    );
+
+    textInput.focus();
+
+    return;
+
+  }
+
+
+  if (
+    !Number.isFinite(duration) ||
+    duration <= 0
+  ) {
+
+    alert(
+      "表示時間を正しく入力してください。"
+    );
+
+    return;
+
+  }
+
+
+  const time =
+    getCurrentTime();
+
+
+  data.calls.push({
+
+    time:
+      Number(
+        time.toFixed(2)
+      ),
+
+    duration:
+      Number(
+        duration.toFixed(2)
+      ),
+
+    text:
+      text
+
+  });
+
+
+  data.calls.sort(
+    (a,b) =>
+      Number(a.time) -
+      Number(b.time)
+  );
+
+
+  saveCurrentData();
+
+  renderCalls();
+
+
+  textInput.value = "";
+
+  textInput.focus();
+
+
+  updatePreview(time);
+
+}
+
+
+/* =========================================================
+   コール一覧
+========================================================= */
+
+function renderCalls() {
+
+  const list =
+    document.getElementById(
+      "callsList"
+    );
+
+
+  list.innerHTML = "";
+
+
+  if (
+    data.calls.length === 0
+  ) {
+
+    list.innerHTML =
+      '<div class="empty">' +
+      'まだコールデータがありません。' +
+      '</div>';
+
+    return;
+
+  }
+
+
+  data.calls.forEach(
+    (item, index) => {
+
+      const div =
+        document.createElement(
+          "div"
+        );
+
+
+      div.className =
+        "entry";
+
+
+      div.innerHTML = `
+
+        <div class="entry-top">
+
+          <span class="entry-time">
+
+            ${formatTime(item.time)}
+
+          </span>
+
+          <span>
+
+            ${Number(item.duration).toFixed(1)}秒
+
+          </span>
+
+        </div>
+
+
+        <div class="entry-text"></div>
+
+
+        <div class="entry-actions">
+
+          <button
+            class="blue"
+            onclick="editCall(${index})">
+
+            編集
+
+          </button>
+
+
+          <button
+            class="secondary"
+            onclick="seekTo(${Number(item.time)})">
+
+            ここへ移動
+
+          </button>
+
+
+          <button
+            class="red"
+            onclick="deleteCall(${index})">
+
+            削除
+
+          </button>
+
+        </div>
+
+      `;
+
+
+      div
+        .querySelector(
+          ".entry-text"
+        )
+        .textContent =
+          item.text;
+
+
+      list.appendChild(div);
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   コール編集
+========================================================= */
+
+function editCall(index) {
+
+  const item =
+    data.calls[index];
+
+
+  const newText =
+    prompt(
+      "コールを編集してください",
+      item.text
+    );
+
+
+  if (
+    newText === null
+  ) {
+
+    return;
+
+  }
+
+
+  const newTime =
+    prompt(
+      "開始時刻（秒）",
+      item.time
+    );
+
+
+  if (
+    newTime === null
+  ) {
+
+    return;
+
+  }
+
+
+  const newDuration =
+    prompt(
+      "表示時間（秒）",
+      item.duration
+    );
+
+
+  if (
+    newDuration === null
+  ) {
+
+    return;
+
+  }
+
+
+  const time =
+    Number(newTime);
+
+
+  const duration =
+    Number(newDuration);
+
+
+  if (
+    !Number.isFinite(time) ||
+    time < 0 ||
+    !Number.isFinite(duration) ||
+    duration <= 0
+  ) {
+
+    alert(
+      "入力された数値が正しくありません。"
+    );
+
+    return;
+
+  }
+
+
+  data.calls[index] = {
+
+    time:
+      Number(
+        time.toFixed(2)
+      ),
+
+    duration:
+      Number(
+        duration.toFixed(2)
+      ),
+
+    text:
+      newText
+
+  };
+
+
+  data.calls.sort(
+    (a,b) =>
+      Number(a.time) -
+      Number(b.time)
+  );
+
+
+  saveCurrentData();
+
+  renderCalls();
+
+  updatePreview(
+    getCurrentTime()
+  );
+
+}
+
+
+function deleteCall(index) {
+
+  if (
+    !confirm(
+      "このコールを削除しますか？"
+    )
+  ) {
+
+    return;
+
+  }
+
+
+  data.calls.splice(
+    index,
+    1
+  );
+
+
+  saveCurrentData();
+
+  renderCalls();
+
+  updatePreview(
+    getCurrentTime()
+  );
+
+}
+
+
+/* =========================================================
+   JSON書き出し
+========================================================= */
+
+function downloadJSON() {
+
+  const json =
+    JSON.stringify(
+      data,
+      null,
+      2
+    );
+
+
+  const blob =
+    new Blob(
+      [json],
+      {
+        type:
+          "application/json"
+      }
+    );
+
+
+  const url =
+    URL.createObjectURL(blob);
+
+
+  const a =
+    document.createElement(
+      "a"
+    );
+
+
+  a.href = url;
+
+  a.download =
+    data.song +
+    ".json";
+
+
+  document.body.appendChild(a);
+
+  a.click();
+
+  a.remove();
+
+  URL.revokeObjectURL(url);
+
+}
+
+
+/* =========================================================
+   JSON読み込み
+========================================================= */
+
+function toggleImport() {
+
+  document
+    .getElementById("importArea")
+    .classList
+    .toggle("show");
+
+}
+
+
+function importJSON() {
+
+  const input =
+    document.getElementById(
+      "jsonFile"
+    );
+
+
+  const file =
+    input.files[0];
+
+
+  if (!file) {
+
+    alert(
+      "JSONファイルを選択してください。"
+    );
+
+    return;
+
+  }
+
+
+  const reader =
+    new FileReader();
+
+
+  reader.onload =
+    function(event) {
+
+      try {
+
+        const imported =
+          JSON.parse(
+            event.target.result
+          );
+
+
+        if (
+          imported.videoId !==
+          songs[currentSongIndex].videoId
+        ) {
+
+          const ok =
+            confirm(
+
+              "このJSONは現在選択している曲と違う曲のデータです。\n\n" +
+
+              "現在の曲：" +
+              songs[currentSongIndex].song +
+
+              "\n" +
+
+              "JSONの曲：" +
+              imported.song +
+
+              "\n\n" +
+
+              "それでも読み込みますか？"
+
+            );
+
+
+          if (!ok) {
+            return;
+          }
+
+        }
+
+
+        data = {
+
+          song:
+            imported.song ||
+            songs[currentSongIndex].song,
+
+          videoId:
+            imported.videoId ||
+            songs[currentSongIndex].videoId,
+
+          lyrics:
+            Array.isArray(imported.lyrics)
+              ? imported.lyrics
+              : [],
+
+          calls:
+            Array.isArray(imported.calls)
+              ? imported.calls
+              : []
+
+        };
+
+
+        /*
+          JSON読み込み後、
+          最初の未記録歌詞を探す
+        */
+
+        const firstUnrecorded =
+          data.lyrics.findIndex(
+            lyric =>
+              lyric.time === null ||
+              lyric.time === undefined
+          );
+
+
+        nextLyricIndex =
+          firstUnrecorded >= 0
+            ? firstUnrecorded
+            : data.lyrics.length;
+
+
+        saveCurrentData();
+
+
+        document
+          .getElementById("lyricsInput")
+          .value =
+            data.lyrics
+              .map(
+                item =>
+                  item.text
+              )
+              .join("\n");
+
+
+        renderLyrics();
+
+        renderCalls();
+
+        updateNextLyricDisplay();
+
+        updatePreview(
+          getCurrentTime()
+        );
+
+
+        alert(
+          "JSONを読み込みました！"
+        );
+
+      }
+
+      catch (error) {
+
+        console.error(error);
+
+        alert(
+          "JSONを読み込めませんでした。\nファイルの内容を確認してください。"
+        );
+
+      }
+
+    };
+
+
+  reader.readAsText(file);
+
+}
+
+
+/* =========================================================
+   コード書き出し
+========================================================= */
+
+function showCodeExport() {
+
+  const output =
+    document.getElementById(
+      "codeOutput"
+    );
+
+
+  const textarea =
+    document.getElementById(
+      "codeTextarea"
+    );
+
+
+  const exportData = {
+
+    song:
+      data.song,
+
+    videoId:
+      data.videoId,
+
+    lyrics:
+      data.lyrics,
+
+    calls:
+      data.calls
+
+  };
+
+
+  const code =
+`const songData = ${JSON.stringify(
+  exportData,
+  null,
+  2
+)};`;
+
+
+  textarea.value =
+    code;
+
+
+  output
+    .classList
+    .add("show");
+
+
+  textarea.focus();
+
+}
+
+
+async function copyCode() {
+
+  const textarea =
+    document.getElementById(
+      "codeTextarea"
+    );
+
+
+  try {
+
+    await navigator.clipboard.writeText(
+      textarea.value
+    );
+
+
+    alert(
+      "コードをコピーしました！"
+    );
+
+  }
+
+  catch (error) {
+
+    textarea.select();
+
+    document.execCommand(
+      "copy"
+    );
+
+
+    alert(
+      "コードをコピーしました！"
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   初期化
+========================================================= */
+
+songSelect.value = "0";
+
+
+data =
+  loadSavedData(0);
+
+
+const firstUnrecorded =
+  data.lyrics.findIndex(
+    lyric =>
+      lyric.time === null ||
+      lyric.time === undefined
+  );
+
+
+nextLyricIndex =
+  firstUnrecorded >= 0
+    ? firstUnrecorded
+    : data.lyrics.length;
+
+
+document
+  .getElementById("lyricsInput")
+  .value =
+    data.lyrics
+      .map(
+        item =>
+          item.text
+      )
+      .join("\n");
+
+
+renderLyrics();
+
+renderCalls();
+
+updateNextLyricDisplay();
+
+updatePreview(0);
+
+
+/* =========================================================
+   YouTube API読み込み
+========================================================= */
+
+window.onYouTubeIframeAPIReady =
+  onYouTubeIframeAPIReady;
+
+
+const youtubeScript =
+  document.createElement("script");
+
+
+youtubeScript.src =
+  "https://www.youtube.com/iframe_api";
+
+
+youtubeScript.async = true;
+
+
+document.head.appendChild(
+  youtubeScript
+);
+
+</script>
+
+</body>
+</html>
